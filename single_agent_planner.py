@@ -133,7 +133,6 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
     ##############################
     # Task 1.1: Extend the A* search to search in the space-time domain
     #           rather than space domain, only.
-
     constraint_table = build_constraint_table(constraints, agent)
     open_list = []
     closed_list = dict()
@@ -149,19 +148,21 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         curr_timestep = curr['timestep']
         # calculate an upper bound on the path length for an agent based on the path lengths of all agents with higher priorities and the size of the environment.
         map_size = sum(x.count(False) for x in my_map)
-        if(curr_timestep > map_size - 1):
+        if curr_timestep > map_size - 1:
             break
         if curr['loc'] == goal_loc and curr_timestep >= earliest_goal_timestep:
             flag = True
-            if(curr_timestep + 1 < len(constraint_table)):
+            if curr_timestep + 1 < len(constraint_table):
                 for i in range(curr_timestep + 1, len(constraint_table)):
-                    if(is_constrained(goal_loc, goal_loc, i, constraint_table)):
+                    if is_constrained(goal_loc, goal_loc, i, constraint_table):
                         earliest_goal_timestep = i + 1
                         flag = False
             if flag:
                 return get_path(curr)
         for dir in range(5):
             child_loc = move(curr['loc'], dir)
+            if child_loc[0] < 0 or child_loc[0] > len(my_map) - 1 or child_loc[1] < 0 or child_loc[1] > len(my_map[0]) - 1:
+                continue 
             if my_map[child_loc[0]][child_loc[1]] or is_constrained(curr['loc'], child_loc, curr['timestep'] + 1, constraint_table):
                 continue
             child = {'loc': child_loc,
