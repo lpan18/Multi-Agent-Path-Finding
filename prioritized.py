@@ -59,6 +59,9 @@ class PrioritizedPlanningSolver(object):
                     # if t > 0:
                     #     constraints.append({'agent': agent, 'loc': [loc, path[t-1]], 'timestep': t})
                         # constraints.append({'agent': agent, 'loc': [path[t-1], loc], 'timestep': t})
+                    if t == len(path) - 1 and t + 1 < len(constraints):
+                        for i in range(t + 1, len(constraints)):
+                            constraints.append({'agent': agent, 'loc': [loc], 'timestep': i})
             ##############################
 
         self.CPU_time = timer.time() - start_time

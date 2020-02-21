@@ -147,6 +147,10 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         #############################
         # Task 1.4: Adjust the goal test condition to handle goal constraints
         curr_timestep = curr['timestep']
+        # calculate an upper bound on the path length for an agent based on the path lengths of all agents with higher priorities and the size of the environment.
+        map_size = sum(x.count(False) for x in my_map)
+        if(curr_timestep > map_size - 1):
+            break
         if curr['loc'] == goal_loc and curr_timestep >= earliest_goal_timestep:
             flag = True
             if(curr_timestep + 1 < len(constraint_table)):
