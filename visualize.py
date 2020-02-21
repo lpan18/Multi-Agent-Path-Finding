@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import matplotlib
-matplotlib.use('TkAgg') # fix blit for MacOSx
+# import matplotlib
+# matplotlib.use('TkAgg') # fix blit for MacOSx
 from matplotlib.patches import Circle, Rectangle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -73,7 +73,7 @@ class Animation:
                                                  init_func=self.init_func,
                                                  frames=int(self.T + 1) * 10,
                                                  interval=100,
-                                                 blit=True)
+                                                 blit=False)
 
     def save(self, file_name, speed):
         self.animation.save(
