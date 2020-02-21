@@ -146,8 +146,16 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         curr = pop_node(open_list)
         #############################
         # Task 1.4: Adjust the goal test condition to handle goal constraints
-        if curr['loc'] == goal_loc:
-            return get_path(curr)
+        curr_timestep = curr['timestep']
+        if curr['loc'] == goal_loc and curr_timestep >= earliest_goal_timestep:
+            flag = True
+            if(curr_timestep + 1 < len(constraint_table)):
+                for i in range(curr_timestep + 1, len(constraint_table)):
+                    if(is_constrained(goal_loc, goal_loc, i, constraint_table)):
+                        earliest_goal_timestep = i + 1
+                        flag = False
+            if flag:
+                return get_path(curr)
         for dir in range(5):
             child_loc = move(curr['loc'], dir)
             if my_map[child_loc[0]][child_loc[1]] or is_constrained(curr['loc'], child_loc, curr['timestep'] + 1, constraint_table):

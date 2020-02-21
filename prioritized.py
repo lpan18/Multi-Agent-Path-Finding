@@ -30,7 +30,12 @@ class PrioritizedPlanningSolver(object):
         result = []
         constraints = []
         # constraints.append({'agent': 0, 'loc': [(1, 5)], 'timestep': 4}) # 1.2
-        constraints.append({'agent': 1, 'loc': [(1, 2), (1,3)], 'timestep': 1}) # 1.3
+        # constraints.append({'agent': 1, 'loc': [(1, 2), (1,3)], 'timestep': 1}) # 1.3
+        # constraints.append({'agent': 0, 'loc': [(1, 5)], 'timestep': 10}) # 1.4
+        # 1.5
+        # constraints.append({'agent': 1, 'loc': [(1, 2)], 'timestep': 2})
+        # constraints.append({'agent': 1, 'loc': [(1, 3)], 'timestep': 2})
+        # constraints.append({'agent': 1, 'loc': [(1, 4)], 'timestep': 2})
 
         for i in range(self.num_of_agents):  # Find path for each agent
             path = a_star(self.my_map, self.starts[i], self.goals[i], self.heuristics[i],
@@ -45,8 +50,15 @@ class PrioritizedPlanningSolver(object):
             #            * path contains the solution path of the current (i'th) agent, e.g., [(1,1),(1,2),(1,3)]
             #            * self.num_of_agents has the number of total agents
             #            * constraints: array of constraints to consider for future A* searches
-
-
+            for t, loc in enumerate(path):
+                for agent in range(i + 1, self.num_of_agents + 1): # future agents
+                    constraints.append({'agent': agent, 'loc': [loc], 'timestep': t})
+                    if t + 1 < len(path):
+                        constraints.append({'agent': agent, 'loc': [loc, path[t+1]], 'timestep': t + 1})
+                        constraints.append({'agent': agent, 'loc': [path[t+1], loc], 'timestep': t + 1})
+                    # if t > 0:
+                    #     constraints.append({'agent': agent, 'loc': [loc, path[t-1]], 'timestep': t})
+                        # constraints.append({'agent': agent, 'loc': [path[t-1], loc], 'timestep': t})
             ##############################
 
         self.CPU_time = timer.time() - start_time
