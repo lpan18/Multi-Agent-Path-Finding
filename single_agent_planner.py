@@ -61,13 +61,19 @@ def build_constraint_table(constraints, agent):
 
     # Add constraint to constraint_table
     for constraint in constraints:
-        if constraint['agent'] == agent:
-            if len(constraint['loc']) == 1:
-                # vertex
-                constraint_table[constraint['timestep']].append({'loc': constraint['loc']})
-            else: 
-                # edge
-                constraint_table[constraint['timestep']].append({'loc': constraint['loc']})
+        if 'positive' in constraint and constraint['positive']:
+            if constraint['agent'] == agent:
+                constraint_table[constraint['timestep']].append({'loc': constraint['loc'], 'positive': True})
+            else: # other agents
+                if len(constraint['loc']) == 1: # vertex
+                    constraint_table[constraint['timestep']].append({'loc': constraint['loc'], 'positive': False})
+                else: # edge - (for each other agent: 2 vertex + 1 edge constraint)
+                    constraint_table[constraint['timestep'] - 1].append({'loc': constraint['loc'][0], 'positive': False})
+                    constraint_table[constraint['timestep']].append({'loc': constraint['loc'][1], 'positive': False})
+                    constraint_table[constraint['timestep']].append({'loc': [constraint['loc'][1], constraint['loc'][0]], 'positive': False})
+        else:
+            if constraint['agent'] == agent:
+                constraint_table[constraint['timestep']].append({'loc': constraint['loc'], 'positive': False})
     return constraint_table
 
 
@@ -98,14 +104,20 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table):
     if len(constraint_table) <= next_time:
         return False
     for constraint in constraint_table[next_time]:
-        if len(constraint['loc']) == 1:
-            # vertex
-            if constraint['loc'][0] == next_loc:
-                return True
+        if 'positive' in constraint and constraint['positive']:
+            if len(constraint['loc']) == 1: # vertex
+                if constraint['loc'][0] != next_loc:
+                    return True
+            else: # edge
+                if constraint['loc'] != [curr_loc, next_loc]:
+                    return True            
         else:
-            # edge
-            if constraint['loc'] == [curr_loc, next_loc]:
-                return True
+            if len(constraint['loc']) == 1: # vertex
+                if constraint['loc'][0] == next_loc:
+                    return True
+            else: # edge
+                if constraint['loc'] == [curr_loc, next_loc]:
+                    return True
     return False
 
 def push_node(open_list, node):

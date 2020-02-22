@@ -2,4 +2,3 @@ __pycache__/
 instances/test*
 *.pyc
 *.DS_Store
-results.csv

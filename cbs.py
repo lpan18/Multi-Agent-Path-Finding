@@ -47,12 +47,12 @@ def standard_splitting(collision):
     #           Edge collision: the first constraint prevents the first agent to traverse the specified edge at the
     #                          specified timestep, and the second constraint prevents the second agent to traverse the
     #                          specified edge at the specified timestep
-    constraint1 = {'agent': collision['a1'], 'loc': collision['loc'], 'timestep': collision['timestep']}
-    constraint2 = {'agent': collision['a2'], 'loc': collision['loc'], 'timestep': collision['timestep']}
+    constraint1 = {'agent': collision['a1'], 'loc': collision['loc'], 'timestep': collision['timestep'], 'positive': False}
+    constraint2 = {'agent': collision['a2'], 'loc': collision['loc'], 'timestep': collision['timestep'], 'positive': False}
     if len(collision['loc']) != 1: # edge - reverse second constraint location list
         loc = collision['loc'][:]
         loc.reverse()
-        constraint2 = {'agent': collision['a2'], 'loc': loc, 'timestep': collision['timestep']}
+        constraint2 = {'agent': collision['a2'], 'loc': loc, 'timestep': collision['timestep'], 'positive': False}
     return [constraint1, constraint2]
 
 def disjoint_splitting(collision):
@@ -65,8 +65,16 @@ def disjoint_splitting(collision):
     #                          specified timestep, and the second constraint prevents the same agent to traverse the
     #                          specified edge at the specified timestep
     #           Choose the agent randomly
-
-    pass
+    agent = random.randint(0,1)
+    if agent == 0:
+        constraint1 = {'agent': collision['a1'], 'loc': collision['loc'], 'timestep': collision['timestep'], 'positive': True}
+        constraint2 = {'agent': collision['a1'], 'loc': collision['loc'], 'timestep': collision['timestep'], 'positive': False}
+    else:
+        loc = collision['loc'][:]
+        loc.reverse()
+        constraint1 = {'agent': collision['a2'], 'loc': loc, 'timestep': collision['timestep'], 'positive': True}
+        constraint2 = {'agent': collision['a2'], 'loc': loc, 'timestep': collision['timestep'], 'positive': False}
+    return [constraint1, constraint2]
 
 def paths_violate_constraint(constraint, paths):
     assert constraint['positive'] is True
@@ -164,11 +172,11 @@ class CBSSolver(object):
         #             3. Otherwise, choose the first collision and convert to a list of constraints (using your
         #                standard_splitting function). Add a new child node to your open list for each constraint
         #           Ensure to create a copy of any objects that your child nodes might inherit
-        expanded_nodes = [] 
+        # expanded_nodes = [] 
         while len(self.open_list) > 0:
             # print("Open list: {}".format(self.open_list))
             curr = self.pop_node()
-            expanded_nodes.append(curr)
+            # expanded_nodes.append(curr)
             # print("Expanded nodes list: {}".format(str(expanded_nodes)))
             if len(curr['collisions']) == 0:
                 self.print_results(curr)
@@ -176,15 +184,19 @@ class CBSSolver(object):
             else:
                 collision = curr['collisions'][0]
                 print("In parent collisions, pick one collision {}".format(collision))
-                constraints = standard_splitting(collision)
+                # constraints = standard_splitting(collision)
+                constraints = disjoint_splitting(collision)
                 for constraint in constraints:
                     child_contraints = list(curr['constraints'])
                     child_contraints.append(constraint)
                     child_paths = list(curr['paths'])
-                    agents_in_constraint = []
-                    agents_in_constraint.append(constraint['agent'])
+                    agents_need_update = []
+                    if constraint['positive']:
+                        agents_need_update = paths_violate_constraint(constraint, child_paths)
+                    else:
+                        agents_need_update.append(constraint['agent'])
                     keep = True
-                    for j in agents_in_constraint:
+                    for j in agents_need_update:
                         child_paths[j] = a_star(self.my_map, self.starts[j], self.goals[j], self.heuristics[j], j, child_contraints)
                         if child_paths[j] is None:
                             keep = False
