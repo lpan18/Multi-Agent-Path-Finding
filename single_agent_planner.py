@@ -59,7 +59,7 @@ def build_constraint_table(constraints, agent):
         max_timestep = max(max_timestep, constraint['timestep'])
     constraint_table = [[] for _ in range(max_timestep + 1)]
 
-    # Add constraint to constraint_table
+    # Add constraint to the constraint_table
     for constraint in constraints:
         if 'positive' in constraint and constraint['positive']:
             if constraint['agent'] == agent:
