@@ -29,6 +29,9 @@ class PrioritizedPlanningSolver(object):
         start_time = timer.time()
         result = []
         constraints = []
+        max_path_len = 0
+        map_size = sum(x.count(False) for x in self.my_map)
+        upperbound = max_path_len + map_size
         # constraints.append({'agent': 0, 'loc': [(1, 5)], 'timestep': 4}) # 1.2
         # constraints.append({'agent': 1, 'loc': [(1, 2), (1,3)], 'timestep': 1}) # 1.3
         # constraints.append({'agent': 0, 'loc': [(1, 5)], 'timestep': 10}) # 1.4
@@ -42,6 +45,16 @@ class PrioritizedPlanningSolver(object):
                           i, constraints)
             if path is None:
                 raise BaseException('No solutions')
+            
+            # Task 2.4
+            if len(path) > upperbound:
+                print("Reach upper bound {} for agent {} with path length {}".format(upperbound, i,len(path)))
+                raise BaseException('No solutions')
+
+            # Calculate an upper bound on the path length
+            max_path_len = max(max_path_len, len(path))
+            upperbound = max_path_len + map_size
+
             result.append(path)
 
             ##############################
@@ -56,6 +69,10 @@ class PrioritizedPlanningSolver(object):
                     if t > 0:
                         constraints.append({'agent': agent, 'loc': [path[t], path[t-1]], 'timestep': t}) # edge
                         constraints.append({'agent': agent, 'loc': [path[t-1], path[t]], 'timestep': t}) # edge
+           
+                # Task 2.3 Additional Constraints (can also implemented by modify is_constrained function in single_agent_planner.py,then need to comment out it when choosing CBS)
+                for t_future in range(len(path), upperbound):
+                    constraints.append({'agent': agent, 'loc': [path[len(path) - 1]], 'timestep': t_future})
             ##############################
 
         self.CPU_time = timer.time() - start_time

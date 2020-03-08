@@ -104,7 +104,6 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table):
     #               any given constraint. For efficiency the constraints are indexed in a constraint_table
     #               by time step, see build_constraint_table.
     
-    # Task 2.3 Note: Comment out the following two lines when choosing cbs planning, uncomment out when choosing Prioritized planning
     # if len(constraint_table) > 0 and next_time >= len(constraint_table):
     #     next_time = len(constraint_table) - 1
 
@@ -164,11 +163,6 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         #############################
         # Task 1.4: Adjust the goal test condition to handle goal constraints
         curr_timestep = curr['timestep']
-        # calculate an upper bound on the path length
-        map_size = sum(x.count(False) for x in my_map)
-        if curr_timestep > map_size - 1:
-            # print("Reach upper bound at timestep: {}".format(curr_timestep))
-            break
         if curr['loc'] == goal_loc and curr_timestep >= earliest_goal_timestep:
             flag = True
             if curr_timestep + 1 < len(constraint_table):
