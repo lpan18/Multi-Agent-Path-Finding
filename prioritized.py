@@ -50,18 +50,12 @@ class PrioritizedPlanningSolver(object):
             #            * path contains the solution path of the current (i'th) agent, e.g., [(1,1),(1,2),(1,3)]
             #            * self.num_of_agents has the number of total agents
             #            * constraints: array of constraints to consider for future A* searches
-            for t, loc in enumerate(path):
-                for agent in range(i + 1, self.num_of_agents + 1): # future agents
-                    constraints.append({'agent': agent, 'loc': [loc], 'timestep': t})
-                    if t + 1 < len(path):
-                        constraints.append({'agent': agent, 'loc': [loc, path[t+1]], 'timestep': t + 1})
-                        constraints.append({'agent': agent, 'loc': [path[t+1], loc], 'timestep': t + 1})
-                    # if t > 0:
-                    #     constraints.append({'agent': agent, 'loc': [loc, path[t-1]], 'timestep': t})
-                        # constraints.append({'agent': agent, 'loc': [path[t-1], loc], 'timestep': t})
-                    if t == len(path) - 1 and t + 1 < len(constraints):
-                        for i in range(t + 1, len(constraints)):
-                            constraints.append({'agent': agent, 'loc': [loc], 'timestep': i})
+            for agent in range(i + 1, self.num_of_agents + 1): # future agents
+                for t in range(len(path)):
+                    constraints.append({'agent': agent, 'loc': [path[t]], 'timestep': t})  # vertex
+                    if t > 0:
+                        constraints.append({'agent': agent, 'loc': [path[t], path[t-1]], 'timestep': t}) # edge
+                        constraints.append({'agent': agent, 'loc': [path[t-1], path[t]], 'timestep': t}) # edge
             ##############################
 
         self.CPU_time = timer.time() - start_time

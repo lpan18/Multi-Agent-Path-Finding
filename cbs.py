@@ -177,13 +177,13 @@ class CBSSolver(object):
             # print("Open list: {}".format(self.open_list))
             curr = self.pop_node()
             # expanded_nodes.append(curr)
-            # print("Expanded nodes list: {}".format(str(expanded_nodes)))
             if len(curr['collisions']) == 0:
+                # print("Expanded nodes list: {}".format(str(expanded_nodes)))
                 self.print_results(curr)
                 return curr['paths']
             else:
                 collision = curr['collisions'][0]
-                print("In parent collisions, pick one collision {}".format(collision))
+                # print("In parent collisions, pick one collision {}".format(collision))
                 # constraints = standard_splitting(collision)
                 constraints = disjoint_splitting(collision)
                 for constraint in constraints:
@@ -207,6 +207,7 @@ class CBSSolver(object):
                                 'paths': child_paths,
                                 'collisions': detect_collisions(child_paths)}
                         self.push_node(child)
+        # print("Expanded nodes list: {}".format(str(expanded_nodes)))
         self.print_results(root)
         return root['paths']
 

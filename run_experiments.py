@@ -84,6 +84,7 @@ if __name__ == '__main__':
 
 
     result_file = open("results.csv", "w", buffering=1)
+    # result_file = open("task5_results.csv", "w", buffering=1)
 
     for file in sorted(glob.glob(args.instance)):
 

@@ -57,7 +57,9 @@ def build_constraint_table(constraints, agent):
     max_timestep = -1
     for constraint in constraints:
         max_timestep = max(max_timestep, constraint['timestep'])
-    constraint_table = [[] for _ in range(max_timestep + 1)]
+    constraint_table = []
+    for i in range(0, max_timestep + 1):
+        constraint_table.append([])
 
     # Add constraint to the constraint_table
     for constraint in constraints:
@@ -101,23 +103,27 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table):
     # Task 1.2/1.3: Check if a move from curr_loc to next_loc at time step next_time violates
     #               any given constraint. For efficiency the constraints are indexed in a constraint_table
     #               by time step, see build_constraint_table.
-    if len(constraint_table) <= next_time:
-        return False
-    for constraint in constraint_table[next_time]:
-        if 'positive' in constraint and constraint['positive']:
-            if len(constraint['loc']) == 1: # vertex
-                if constraint['loc'][0] != next_loc:
-                    return True
-            else: # edge
-                if constraint['loc'] != [curr_loc, next_loc]:
-                    return True            
-        else:
-            if len(constraint['loc']) == 1: # vertex
-                if constraint['loc'][0] == next_loc:
-                    return True
-            else: # edge
-                if constraint['loc'] == [curr_loc, next_loc]:
-                    return True
+    
+    # Task 2.3 Note: Comment out the following two lines when choosing cbs planning, uncomment out when choosing Prioritized planning
+    # if len(constraint_table) > 0 and next_time >= len(constraint_table):
+    #     next_time = len(constraint_table) - 1
+
+    if next_time < len(constraint_table):
+        for constraint in constraint_table[next_time]:
+            if 'positive' in constraint and constraint['positive']:
+                if len(constraint['loc']) == 1: # vertex
+                    if constraint['loc'][0] != next_loc:
+                        return True
+                else: # edge
+                    if constraint['loc'] != [curr_loc, next_loc]:
+                        return True            
+            else:
+                if len(constraint['loc']) == 1: # vertex
+                    if constraint['loc'][0] == next_loc:
+                        return True
+                else: # edge
+                    if constraint['loc'] == [curr_loc, next_loc]:
+                        return True
     return False
 
 def push_node(open_list, node):
@@ -158,9 +164,10 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
         #############################
         # Task 1.4: Adjust the goal test condition to handle goal constraints
         curr_timestep = curr['timestep']
-        # calculate an upper bound on the path length for an agent based on the path lengths of all agents with higher priorities and the size of the environment.
+        # calculate an upper bound on the path length
         map_size = sum(x.count(False) for x in my_map)
         if curr_timestep > map_size - 1:
+            # print("Reach upper bound at timestep: {}".format(curr_timestep))
             break
         if curr['loc'] == goal_loc and curr_timestep >= earliest_goal_timestep:
             flag = True
